@@ -97,6 +97,8 @@ def main(logger=None):
     db = sqlite.Sqlite({'db_path': sqlite_db_path})
     db.create_table(sqlite_table_name, sqlite_columns)
 
+    url = conf['info_notify_url']
+
     while True:
         # 次のお知らせ通知時刻まで待機
         wait_time = mytime.get_diff_minute(notify_time)
@@ -104,7 +106,6 @@ def main(logger=None):
 
         # お知らせ情報を取得
         logger and logger.debug('Getting new information..')
-        url = 'https://www.l.u-tokyo.ac.jp/student/student_news/index_u2024.html'
         new_info_list = get_info_list(url)
 
         # 既存のお知らせ情報を取得

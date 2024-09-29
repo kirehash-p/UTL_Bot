@@ -60,7 +60,7 @@ def main(logger):
     notify_time = conf['schedule_notify_time']
     logger and logger.info(f"schedule_notify_time: {notify_time}")
 
-    ss = spreadsheet.get_spread_sheet(os.path.join(base_path, '../conf/google_api_credential.json'), conf['sheet_key'])
+    ss = spreadsheet.get_spread_sheet(os.path.join(base_path, '../conf/google_api_credential.json'), conf['schedule_sheet_key'])
     linebot = SNLineBot(jsonfile=os.path.join(base_path, '../conf/line_bot_config.json'), ss=ss)
 
     while True:
