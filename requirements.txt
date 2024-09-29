@@ -1,0 +1,9 @@
+beautifulsoup4
+discord.py
+Flask
+gspread
+helper
+line_bot_sdk
+oauth2client
+PyMySQL
+Requests

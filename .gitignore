@@ -1,0 +1,17 @@
+# confフォルダ内は構造のみ管理する
+/conf/**
+!/conf/**/
+!/conf/**/.gitkeep
+
+# logフォルダ内は構造のみ管理する
+/log/**
+!/log/**/
+!/log/**/.gitkeep
+
+# Python関連のファイル
+__pycache__/
+*.py[cod]
+
+# お知らせ一覧のデータベース
+/info_notify/info_notify.db
+
