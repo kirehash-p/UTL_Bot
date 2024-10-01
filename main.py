@@ -4,8 +4,8 @@ from module.scraper.google import spreadsheet
 from module.log.log import log, log_exception
 
 from logger_config import logger
-from info_notify.main import main as info_main
-from schedule_notify.main import main as schedule_main
+from info_notify.info_main import main as info_main
+from schedule_notify.schedule_main import main as schedule_main
 
 @log(logger)
 def main():
