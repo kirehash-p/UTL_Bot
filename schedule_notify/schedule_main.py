@@ -12,7 +12,7 @@ from module.mytime import mytime
 
 import data_operation
 
-schedule_commmand = '/schedule'
+# schedule_commmand = '/schedule'
 
 def get_schedule(data, day) -> data_operation.ScheduleData:
     day = mytime.interpret_day(day)
@@ -36,9 +36,9 @@ class SNLineBot(Bot_Line):
                 if schedule_data['schedule_places']:
                     message += f"\n 場所：{schedule_data['schedule_places'][i]}" if schedule_data['schedule_places'][i] else ""
                 if schedule_data['schedule_dates']:
-                    message += f" \n時間：{schedule_data['schedule_dates'][i]}" if schedule_data['schedule_dates'][i] else ""
+                    message += f" \n 時間：{schedule_data['schedule_dates'][i]}" if schedule_data['schedule_dates'][i] else ""
                 if schedule_data['schedule_remarks']:
-                    message += f"\n備考：{schedule_data['schedule_remarks'][i]}" if schedule_data['schedule_remarks'][i] else ""
+                    message += f"\n 備考：{schedule_data['schedule_remarks'][i]}" if schedule_data['schedule_remarks'][i] else ""
             message += f"\n\n{schedule_data['messages']}"
             return message
 
@@ -62,7 +62,7 @@ def try_several_times(func: callable, n: int=3, logger=None, *args, **kwargs):
             time.sleep(5)
     return None
 
-def main(logger):
+def main(logger=None):
     base_path = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(base_path, '../conf/conf_etc.json')) as f:
         conf = json.load(f)
@@ -84,8 +84,8 @@ def main(logger):
 
         # 予定を取得して通知
         logger and logger.debug('executing schedule notify')
-        # linebot.send_schedule_message(mytime.now_day_str())
-        try_several_times(linebot.send_schedule_message, 3, mytime.now_day_str())
+        search_date = mytime.now_day_str()
+        try_several_times(linebot.send_schedule_message, 3, logger, search_date)
 
         # 1分待機
         time.sleep(60)
