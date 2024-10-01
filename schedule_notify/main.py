@@ -45,12 +45,22 @@ class SNLineBot(Bot_Line):
     def send_schedule_message(self, search_date):
         data = data_operation.get_data(self.ss)
         schedule_data, searched_date = get_schedule(data, search_date)
-        if not schedule_data:
+        if not schedule_data or (schedule_data['schedule_names'] == [''] and schedule_data['messages'] == ''):
             return False # 予定がない場合は何もしない
         message = self.create_schedule_message(schedule_data, searched_date)
         for group_id in self.variable['notify_groups']:
             self.send_message_by_id(group_id, message)
         return True
+
+def try_several_times(func: callable, n: int=3, logger=None, *args, **kwargs):
+    """関数実行をn回を上限に試行する"""
+    for i in range(n):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            logger and logger.warning(f"f{func.__name__} failed for {i+1} times: {e}")
+            time.sleep(5)
+    return None
 
 def main(logger):
     base_path = os.path.dirname(os.path.abspath(__file__))
@@ -66,7 +76,7 @@ def main(logger):
     while True:
         # スプレッドシートの整理
         logger and logger.debug('arranging schedule data')
-        data_operation.auto_arrange(ss, conf['schedule_margin'])
+        try_several_times(data_operation.auto_arrange, 3, logger, ss, conf['schedule_margin'])
 
         # 次のスケジュール通知時間まで待機
         wait_time = mytime.get_diff_minute(notify_time)
@@ -74,7 +84,8 @@ def main(logger):
 
         # 予定を取得して通知
         logger and logger.debug('executing schedule notify')
-        linebot.send_schedule_message(mytime.now_day_str())
+        # linebot.send_schedule_message(mytime.now_day_str())
+        try_several_times(linebot.send_schedule_message, 3, mytime.now_day_str())
 
         # 1分待機
         time.sleep(60)
