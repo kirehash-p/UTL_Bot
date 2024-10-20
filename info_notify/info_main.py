@@ -1,11 +1,11 @@
 import sys
 import os
-from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-import requests
 from typing import List, TypedDict
 import json
 import time
+import requests
+from bs4 import BeautifulSoup
 
 sys.path.append(os.path.dirname(__file__))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -30,6 +30,8 @@ sqlite_columns = [
 ]
 
 class INLineBot(Bot_Line):
+    """お知らせ情報をLINEに通知するクラス"""
+
     def __init__(self, jsonfile=None):
         super().__init__(jsonfile)
 
@@ -52,7 +54,7 @@ class INLineBot(Bot_Line):
 def get_info_list(url: str) -> List[InfoDict]:
     """URLからお知らせ情報のリストを取得する"""
     # ページを取得し、BeautifulSoupでパース
-    response = requests.get(url)
+    response = requests.get(url, timeout=60)
     response.encoding = response.apparent_encoding
     soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -73,7 +75,7 @@ def get_info_list(url: str) -> List[InfoDict]:
                 'info': info_text,
                 'url': info_url
             })
-    
+
     return info_list
 
 def compare_diff(old_info_list: List[InfoDict], new_info_list: List[InfoDict]) -> List[InfoDict]:
@@ -85,6 +87,8 @@ def compare_diff(old_info_list: List[InfoDict], new_info_list: List[InfoDict]) -
     return diff_info_list
 
 def main(logger=None):
+    """お知らせ情報を取得し、LINEに通知するメイン関数"""
+
     base_path = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(base_path, '../conf/conf_etc.json'), 'r') as f:
         conf = json.load(f)
@@ -98,6 +102,13 @@ def main(logger=None):
     db.create_table(sqlite_table_name, sqlite_columns)
 
     url = conf['info_notify_url']
+
+    # データベースを最新の状態に更新
+    new_info_list = get_info_list(url)
+    current_info_list = [{'date': info[0], 'info': info[1], 'url': info[2]} for info in db.execute(f'SELECT * FROM {sqlite_table_name}')]
+    diff_info_list = compare_diff(current_info_list, new_info_list)
+    for info in diff_info_list:
+        db.insert(sqlite_table_name, ['date', 'info', 'url'], [info['date'], info['info'], info['url']])
 
     while True:
         # 次のお知らせ通知時刻まで待機

@@ -31,15 +31,17 @@ class SNLineBot(Bot_Line):
             return f"{searched_date}の予定はありません"
         else:
             message = f"{searched_date}のスケジュール"
-            for i in range(len(schedule_data['schedule_names'])):
-                message += f"\n\n・{schedule_data['schedule_names'][i]}"
-                if schedule_data['schedule_places']:
-                    message += f"\n 場所：{schedule_data['schedule_places'][i]}" if schedule_data['schedule_places'][i] else ""
-                if schedule_data['schedule_dates']:
-                    message += f" \n 時間：{schedule_data['schedule_dates'][i]}" if schedule_data['schedule_dates'][i] else ""
-                if schedule_data['schedule_remarks']:
-                    message += f"\n 備考：{schedule_data['schedule_remarks'][i]}" if schedule_data['schedule_remarks'][i] else ""
-            message += f"\n\n{schedule_data['messages']}"
+            if schedule_data['schedule_names'] != ['']:
+                for i in range(len(schedule_data['schedule_names'])):
+                    message += f"\n\n・{schedule_data['schedule_names'][i]}"
+                    if schedule_data['schedule_places']:
+                        message += f"\n 場所：{schedule_data['schedule_places'][i]}" if schedule_data['schedule_places'][i] else ""
+                    if schedule_data['schedule_dates']:
+                        message += f" \n 時間：{schedule_data['schedule_dates'][i]}" if schedule_data['schedule_dates'][i] else ""
+                    if schedule_data['schedule_remarks']:
+                        message += f"\n 備考：{schedule_data['schedule_remarks'][i]}" if schedule_data['schedule_remarks'][i] else ""
+            if schedule_data['messages']:
+                message += f"\n\n{schedule_data['messages']}"
             return message
 
     def send_schedule_message(self, search_date):
@@ -63,6 +65,8 @@ def try_several_times(func: callable, n: int=3, logger=None, *args, **kwargs):
     return None
 
 def main(logger=None):
+    """スケジュール情報を取得し、LINEに通知するメイン関数"""
+
     base_path = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(base_path, '../conf/conf_etc.json')) as f:
         conf = json.load(f)
