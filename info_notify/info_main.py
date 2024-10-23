@@ -11,7 +11,6 @@ sys.path.append(os.path.dirname(__file__))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from module.sql import sqlite
-from module.scraper.google import spreadsheet
 from module.bot.bot_line import Bot_Line
 from module.mytime import mytime
 

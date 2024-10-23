@@ -67,8 +67,11 @@ def try_several_times(func: callable, n: int=3, logger=None, *args, **kwargs):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            logger and logger.warning(f"f{func.__name__} failed for {i+1} times: {e}")
-            time.sleep(5)
+            if i < n-1:
+                logger and logger.warning(f"f{func.__name__} failed for {i+1} times: {e}")
+                time.sleep(5)
+            else:
+                logger and logger.error(f"f{func.__name__} failed for {n} times: {e}")
     return None
 
 def main(logger=None):
