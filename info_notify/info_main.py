@@ -47,8 +47,14 @@ class INLineBot(Bot_Line):
     def send_info_message(self, info_list: InfoDict):
         """お知らせ情報をLINEに送信する"""
         message = self.create_info_message(info_list)
-        for group_id in self.variable['notify_groups']:
-            self.send_message_by_id(group_id, message)
+        if self.variable['line_notify_token']:
+            ln_url = 'https://notify-api.line.me/api/notify'
+            headers = {'Authorization': f'Bearer {self.variable["line_notify_token"]}'}
+            payload = {'message': message}
+            requests.post(ln_url, headers=headers, data=payload, timeout=60)
+        else:
+            for group_id in self.variable['notify_groups']:
+                self.send_message_by_id(group_id, message)
         return True
 
 def get_info_list(url: str) -> List[InfoDict]:

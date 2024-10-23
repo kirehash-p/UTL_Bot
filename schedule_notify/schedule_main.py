@@ -2,6 +2,7 @@ import sys
 import os
 import time
 import json
+import requests
 
 sys.path.append(os.path.dirname(__file__))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -50,8 +51,14 @@ class SNLineBot(Bot_Line):
         if not schedule_data or (schedule_data['schedule_names'] == [''] and schedule_data['messages'] == ''):
             return False # 予定がない場合は何もしない
         message = self.create_schedule_message(schedule_data, searched_date)
-        for group_id in self.variable['notify_groups']:
-            self.send_message_by_id(group_id, message)
+        if self.variable['line_notify_token']:
+            ln_url = 'https://notify-api.line.me/api/notify'
+            headers = {'Authorization': f'Bearer {self.variable["line_notify_token"]}'}
+            payload = {'message': message}
+            requests.post(ln_url, headers=headers, data=payload, timeout=60)
+        else:
+            for group_id in self.variable['notify_groups']:
+                self.send_message_by_id(group_id, message)
         return True
 
 def try_several_times(func: callable, n: int=3, logger=None, *args, **kwargs):
